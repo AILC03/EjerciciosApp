@@ -2,3 +2,19 @@
 .venv/
 backend/.venv/
 **/.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Flutter / Dart
+**/.dart_tool/
+**/build/
+**/.flutter-plugins-dependencies
+
+# Editores y sistema operativo
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
