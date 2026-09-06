@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/exercise.dart';
 import '../models/muscle.dart';
 import '../services/exercise_service.dart';
@@ -37,14 +38,15 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.muscle.label),
+        title: Text(widget.muscle.localizedLabel(texts)),
         actions: [
           IconButton(
             onPressed: _reload,
             icon: const Icon(Icons.refresh),
-            tooltip: 'Actualizar',
+            tooltip: texts.refresh,
           ),
         ],
       ),
@@ -56,7 +58,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
           }
 
           if (snapshot.hasError) {
-            return _ErrorContent(error: snapshot.error, onRetry: _reload);
+            return _ErrorContent(onRetry: _reload);
           }
 
           final exercises = snapshot.data ?? [];
@@ -94,13 +96,14 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
 }
 
 class _ErrorContent extends StatelessWidget {
-  final Object? error;
   final VoidCallback onRetry;
 
-  const _ErrorContent({required this.error, required this.onRetry});
+  const _ErrorContent({required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -114,21 +117,15 @@ class _ErrorContent extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'No pudimos cargar los ejercicios.',
+              texts.exercisesLoadError,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '$error',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 20),
             FilledButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
-              label: const Text('Reintentar'),
+              label: Text(texts.retry),
             ),
           ],
         ),
@@ -142,6 +139,8 @@ class _EmptyContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -155,15 +154,12 @@ class _EmptyContent extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'No hay ejercicios disponibles.',
+              texts.noExercises,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Selecciona otro músculo e inténtalo nuevamente.',
-              textAlign: TextAlign.center,
-            ),
+            Text(texts.selectAnotherMuscle, textAlign: TextAlign.center),
           ],
         ),
       ),

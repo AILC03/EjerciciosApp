@@ -21,8 +21,26 @@ class ExerciseDetail {
     required this.attribution,
   });
 
-  List<String> get instructions {
-    return instructionSteps['es'] ?? instructionSteps['en'] ?? const [];
+  List<String> instructionsFor(String languageCode) {
+    final localizedInstructions = instructionSteps[languageCode];
+
+    if (localizedInstructions != null && localizedInstructions.isNotEmpty) {
+      return localizedInstructions;
+    }
+
+    final englishInstructions = instructionSteps['en'];
+
+    if (englishInstructions != null && englishInstructions.isNotEmpty) {
+      return englishInstructions;
+    }
+
+    final spanishInstructions = instructionSteps['es'];
+
+    if (spanishInstructions != null && spanishInstructions.isNotEmpty) {
+      return spanishInstructions;
+    }
+
+    return const [];
   }
 
   factory ExerciseDetail.fromJson(Map<String, dynamic> json) {

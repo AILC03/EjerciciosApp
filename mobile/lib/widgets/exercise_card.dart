@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/exercise_labels.dart';
 import '../models/exercise.dart';
 import 'loading_skeletons.dart';
 
@@ -13,6 +15,7 @@ class ExerciseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final texts = AppLocalizations.of(context);
 
     return Card(
       margin: EdgeInsets.zero,
@@ -56,7 +59,7 @@ class ExerciseCard extends StatelessWidget {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              exercise.equipment,
+                              texts.equipmentLabel(exercise.equipment),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: Theme.of(context).textTheme.bodyMedium,

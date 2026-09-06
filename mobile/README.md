@@ -2,6 +2,8 @@
 
 Cliente móvil desarrollado con Flutter. Muestra los grupos musculares disponibles, consulta al backend los ejercicios correspondientes y presenta el detalle de cada ejercicio.
 
+La versión 1.1 incorpora una interfaz bilingüe en español e inglés, detección del idioma del dispositivo y selección manual persistente.
+
 ## Experiencia de usuario
 
 ```text
@@ -13,7 +15,7 @@ La aplicación no abre un catálogo sin filtro: la primera decisión del usuario
 ### Pantalla de músculos
 
 - Solicita `GET /api/v1/muscles`.
-- Traduce los valores técnicos a etiquetas en español.
+- Traduce los valores técnicos al idioma activo.
 - Asocia cada músculo con una imagen de `assets/images/muscles/`.
 - Abre la lista filtrada al pulsar una tarjeta.
 
@@ -29,7 +31,7 @@ La aplicación no abre un catálogo sin filtro: la primera decisión del usuario
 - Solicita `GET /api/v1/exercises/{id}`.
 - Presenta nombre, GIF, equipo y músculo principal.
 - Incluye músculos secundarios cuando existen.
-- Prefiere instrucciones en español y usa las inglesas como respaldo.
+- Muestra instrucciones según el idioma activo y utiliza el otro idioma como respaldo.
 - Muestra la atribución proporcionada por el dataset.
 
 ## Estados de interfaz
@@ -52,6 +54,8 @@ Los skeletons generales aparecen mientras responde la API. Cada imagen y GIF tie
 | `http` | Peticiones HTTP a FastAPI |
 | `cached_network_image` | Caché y estados multimedia |
 | `skeletonizer` | Estados visuales de carga |
+| `flutter_localizations` / `intl` | Generación y aplicación de traducciones |
+| `shared_preferences` | Persistencia del idioma seleccionado |
 | `flutter_test` | Pruebas automatizadas |
 
 Las versiones exactas se encuentran en `pubspec.yaml` y `pubspec.lock`.
@@ -63,6 +67,11 @@ mobile/
 ├── assets/images/muscles/       Imágenes locales de músculos
 ├── lib/
 │   ├── main.dart                Inicio de MaterialApp
+│   ├── l10n/
+│   │   ├── app_es.arb           Textos en español
+│   │   ├── app_en.arb           Textos en inglés
+│   │   ├── exercise_labels.dart Traducción de valores del dataset
+│   │   └── locale_controller.dart Idioma activo y persistencia
 │   ├── models/
 │   │   ├── muscle.dart          Traducciones y rutas de imágenes
 │   │   ├── exercise.dart        Modelo resumido para tarjetas
@@ -92,6 +101,22 @@ mobile/
 5. `Muscle`, `Exercise` o `ExerciseDetail` convierten los campos.
 6. El `FutureBuilder` cambia del skeleton a contenido, vacío o error.
 7. `CachedNetworkImage` descarga y almacena la multimedia.
+
+## Internacionalización
+
+El botón de idioma de la pantalla principal ofrece tres opciones:
+
+- Idioma del dispositivo.
+- Español.
+- English.
+
+`LocaleController` guarda la selección mediante `shared_preferences` y reconstruye `MaterialApp` al cambiarla. Los archivos ARB son la fuente de los textos; los archivos `app_localizations*.dart` son generados por Flutter y no deben editarse manualmente.
+
+```powershell
+flutter gen-l10n
+```
+
+La localización cubre la interfaz, músculos, equipos e instrucciones. Los nombres de los ejercicios permanecen en inglés porque el dataset actual no proporciona traducciones revisadas para ese campo.
 
 ## Configuración del backend
 
@@ -135,6 +160,8 @@ dart format --output=none --set-exit-if-changed lib test
 flutter analyze
 flutter test
 ```
+
+Las pruebas incluyen conversión de modelos, selección y respaldo de instrucciones, traducción de etiquetas y persistencia del idioma.
 
 ## Imágenes de músculos
 

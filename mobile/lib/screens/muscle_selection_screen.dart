@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/locale_controller.dart';
+import '../l10n/app_localizations.dart';
 import '../models/muscle.dart';
 import '../services/exercise_service.dart';
 import '../widgets/loading_skeletons.dart';
 import 'exercise_screen.dart';
 
 class MuscleSelectionScreen extends StatefulWidget {
-  const MuscleSelectionScreen({super.key});
+  final LocaleController localeController;
+
+  const MuscleSelectionScreen({super.key, required this.localeController});
 
   @override
   State<MuscleSelectionScreen> createState() => _MuscleSelectionScreenState();
@@ -37,8 +41,44 @@ class _MuscleSelectionScreenState extends State<MuscleSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('EjerciciosApp')),
+      appBar: AppBar(
+        title: Text(texts.appName),
+        actions: [
+          PopupMenuButton<String>(
+            initialValue: widget.localeController.selectedLanguageCode,
+            tooltip: texts.language,
+            icon: const Icon(Icons.language),
+            onSelected: (languageCode) async {
+              await widget.localeController.changeLanguage(languageCode);
+            },
+            itemBuilder: (context) {
+              final selectedLanguage =
+                  widget.localeController.selectedLanguageCode;
+
+              return [
+                CheckedPopupMenuItem<String>(
+                  value: 'system',
+                  checked: selectedLanguage == 'system',
+                  child: Text(texts.systemLanguage),
+                ),
+                CheckedPopupMenuItem<String>(
+                  value: 'es',
+                  checked: selectedLanguage == 'es',
+                  child: Text(texts.spanish),
+                ),
+                CheckedPopupMenuItem<String>(
+                  value: 'en',
+                  checked: selectedLanguage == 'en',
+                  child: Text(texts.english),
+                ),
+              ];
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: FutureBuilder<List<Muscle>>(
         future: _muscles,
         builder: (context, snapshot) {
@@ -47,30 +87,30 @@ class _MuscleSelectionScreenState extends State<MuscleSelectionScreen> {
           }
 
           if (snapshot.hasError) {
-            return _ErrorContent(error: snapshot.error, onRetry: _reload);
+            return _ErrorContent(onRetry: _reload);
           }
 
           final muscles = snapshot.data ?? [];
 
           return CustomScrollView(
             slivers: [
-              const SliverToBoxAdapter(
+              SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(20, 20, 20, 8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '¿Qué quieres entrenar?',
-                        style: TextStyle(
+                        texts.chooseWorkout,
+                        style: const TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 6),
+                      const SizedBox(height: 6),
                       Text(
-                        'Elige un grupo muscular',
-                        style: TextStyle(fontSize: 16),
+                        texts.chooseMuscleGroup,
+                        style: const TextStyle(fontSize: 16),
                       ),
                     ],
                   ),
@@ -122,7 +162,7 @@ class _MuscleSelectionScreenState extends State<MuscleSelectionScreen> {
                             Padding(
                               padding: const EdgeInsets.all(12),
                               child: Text(
-                                muscle.label,
+                                muscle.localizedLabel(texts),
                                 textAlign: TextAlign.center,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
@@ -147,13 +187,13 @@ class _MuscleSelectionScreenState extends State<MuscleSelectionScreen> {
 }
 
 class _ErrorContent extends StatelessWidget {
-  final Object? error;
   final VoidCallback onRetry;
 
-  const _ErrorContent({required this.error, required this.onRetry});
+  const _ErrorContent({required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -162,11 +202,9 @@ class _ErrorContent extends StatelessWidget {
           children: [
             const Icon(Icons.cloud_off, size: 48),
             const SizedBox(height: 12),
-            const Text('No pudimos cargar los músculos.'),
-            const SizedBox(height: 8),
-            Text('$error', textAlign: TextAlign.center),
+            Text(texts.musclesLoadError, textAlign: TextAlign.center),
             const SizedBox(height: 16),
-            FilledButton(onPressed: onRetry, child: const Text('Reintentar')),
+            FilledButton(onPressed: onRetry, child: Text(texts.retry)),
           ],
         ),
       ),

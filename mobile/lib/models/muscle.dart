@@ -1,8 +1,9 @@
+import '../l10n/app_localizations.dart';
+
 class Muscle {
   final String apiValue;
-  final String label;
 
-  const Muscle({required this.apiValue, required this.label});
+  const Muscle({required this.apiValue});
 
   String get imagePath {
     final filename = apiValue.replaceAll(' ', '_');
@@ -10,29 +11,32 @@ class Muscle {
     return 'assets/images/muscles/$filename.png';
   }
 
-  static const Map<String, String> labels = {
-    'abductors': 'Abductores',
-    'abs': 'Abdominales',
-    'adductors': 'Aductores',
-    'biceps': 'Bíceps',
-    'calves': 'Pantorrillas',
-    'cardiovascular system': 'Cardiovascular',
-    'delts': 'Hombros',
-    'forearms': 'Antebrazos',
-    'glutes': 'Glúteos',
-    'hamstrings': 'Femorales',
-    'lats': 'Dorsales',
-    'levator scapulae': 'Elevador de la escápula',
-    'pectorals': 'Pecho',
-    'quads': 'Cuádriceps',
-    'serratus anterior': 'Serrato anterior',
-    'spine': 'Columna',
-    'traps': 'Trapecios',
-    'triceps': 'Tríceps',
-    'upper back': 'Espalda superior',
-  };
+  String localizedLabel(AppLocalizations texts) {
+    return switch (apiValue) {
+      'abductors' => texts.muscleAbductors,
+      'abs' => texts.muscleAbs,
+      'adductors' => texts.muscleAdductors,
+      'biceps' => texts.muscleBiceps,
+      'calves' => texts.muscleCalves,
+      'cardiovascular system' => texts.muscleCardiovascularSystem,
+      'delts' => texts.muscleDelts,
+      'forearms' => texts.muscleForearms,
+      'glutes' => texts.muscleGlutes,
+      'hamstrings' => texts.muscleHamstrings,
+      'lats' => texts.muscleLats,
+      'levator scapulae' => texts.muscleLevatorScapulae,
+      'pectorals' => texts.musclePectorals,
+      'quads' => texts.muscleQuads,
+      'serratus anterior' => texts.muscleSerratusAnterior,
+      'spine' => texts.muscleSpine,
+      'traps' => texts.muscleTraps,
+      'triceps' => texts.muscleTriceps,
+      'upper back' => texts.muscleUpperBack,
+      _ => apiValue,
+    };
+  }
 
   factory Muscle.fromApi(String value) {
-    return Muscle(apiValue: value, label: labels[value] ?? value);
+    return Muscle(apiValue: value);
   }
 }

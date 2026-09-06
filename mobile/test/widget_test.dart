@@ -20,9 +20,26 @@ void main() {
     });
 
     expect(detail.id, '0001');
-    expect(detail.instructions, ['Instrucción en español']);
+    expect(detail.instructionsFor('es'), ['Instrucción en español']);
+
+    expect(detail.instructionsFor('en'), ['English instruction']);
+    expect(detail.instructionsFor('fr'), ['English instruction']);
     expect(detail.secondaryMuscles, ['lower back']);
     expect(detail.gifUrl, 'https://example.com/exercise.gif');
+  });
+
+  test('usa español como respaldo si no existen instrucciones en inglés', () {
+    final detail = ExerciseDetail.fromJson({
+      'id': '0003',
+      'name': 'Ejercicio de prueba',
+      'target': 'abs',
+      'equipment': 'body weight',
+      'instruction_steps': {
+        'es': ['Única instrucción disponible'],
+      },
+    });
+
+    expect(detail.instructionsFor('en'), ['Única instrucción disponible']);
   });
   test('Convierte un ejercicio JSON y conserva sus datos', () {
     final exercise = Exercise.fromJson({

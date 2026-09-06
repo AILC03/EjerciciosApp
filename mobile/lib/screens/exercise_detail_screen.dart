@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import '../l10n/exercise_labels.dart';
+import '../l10n/app_localizations.dart';
 import '../models/exercise_detail.dart';
 import '../services/exercise_service.dart';
 import '../widgets/loading_skeletons.dart';
@@ -35,8 +37,10 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Detalle del ejercicio')),
+      appBar: AppBar(title: Text(texts.exerciseDetail)),
       body: FutureBuilder<ExerciseDetail>(
         future: _exercise,
         builder: (context, snapshot) {
@@ -45,7 +49,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
           }
 
           if (snapshot.hasError) {
-            return _ErrorContent(error: snapshot.error, onRetry: _reload);
+            return _ErrorContent(onRetry: _reload);
           }
 
           final exercise = snapshot.data!;
@@ -59,13 +63,14 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
 
 class _DetailContent extends StatelessWidget {
   final ExerciseDetail exercise;
-
   const _DetailContent({required this.exercise});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
+    final texts = AppLocalizations.of(context);
+    final languageCode = Localizations.localeOf(context).languageCode;
+    final instructions = exercise.instructionsFor(languageCode);
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
@@ -84,40 +89,40 @@ class _DetailContent extends StatelessWidget {
           children: [
             Chip(
               avatar: const Icon(Icons.fitness_center, size: 18),
-              label: Text(exercise.equipment),
+              label: Text(texts.equipmentLabel(exercise.equipment)),
             ),
             Chip(
               avatar: const Icon(Icons.accessibility_new, size: 18),
-              label: Text(exercise.target),
+              label: Text(texts.muscleLabel(exercise.target)),
             ),
           ],
         ),
         if (exercise.secondaryMuscles.isNotEmpty) ...[
           const SizedBox(height: 24),
           Text(
-            'Músculos secundarios',
+            texts.secondaryMuscles,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
-          Text(exercise.secondaryMuscles.join(', ')),
+          Text(exercise.secondaryMuscles.map(texts.muscleLabel).join(', ')),
         ],
         const SizedBox(height: 24),
         Text(
-          'Instrucciones',
+          texts.instructions,
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 12),
-        if (exercise.instructions.isEmpty)
-          const Text('No hay instrucciones disponibles.')
+        if (instructions.isEmpty)
+          Text(texts.noInstructions)
         else
-          ...List.generate(exercise.instructions.length, (index) {
+          ...List.generate(instructions.length, (index) {
             return _InstructionStep(
               number: index + 1,
-              text: exercise.instructions[index],
+              text: instructions[index],
             );
           }),
         if (exercise.attribution.isNotEmpty) ...[
@@ -174,13 +179,15 @@ class _GifFallback extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final texts = AppLocalizations.of(context);
+
+    return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.broken_image_outlined, size: 48),
-          SizedBox(height: 8),
-          Text('GIF no disponible'),
+          const Icon(Icons.broken_image_outlined, size: 48),
+          const SizedBox(height: 8),
+          Text(texts.gifUnavailable),
         ],
       ),
     );
@@ -225,13 +232,14 @@ class _InstructionStep extends StatelessWidget {
 }
 
 class _ErrorContent extends StatelessWidget {
-  final Object? error;
   final VoidCallback onRetry;
 
-  const _ErrorContent({required this.error, required this.onRetry});
+  const _ErrorContent({required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -244,17 +252,12 @@ class _ErrorContent extends StatelessWidget {
               color: Theme.of(context).colorScheme.error,
             ),
             const SizedBox(height: 16),
-            const Text(
-              'No pudimos cargar el ejercicio.',
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text('$error', textAlign: TextAlign.center),
+            Text(texts.exerciseLoadError, textAlign: TextAlign.center),
             const SizedBox(height: 20),
             FilledButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
-              label: const Text('Reintentar'),
+              label: Text(texts.retry),
             ),
           ],
         ),

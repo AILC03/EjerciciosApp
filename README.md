@@ -4,13 +4,17 @@ Aplicación móvil universitaria para consultar un catálogo de ejercicios agrup
 
 La primera versión es un catálogo de solo lectura. La generación inteligente de rutinas, identificada como **«Haz mi rutina»**, forma parte de una versión futura y todavía no está implementada.
 
-## Funcionalidades de la V1
+## Funcionalidades de la V1.1
 
 - Selección visual de 19 grupos musculares.
 - Consulta de ejercicios filtrados por músculo principal.
 - Tarjetas con imagen, nombre y equipo requerido.
 - Detalle con GIF, equipo, músculo objetivo, músculos secundarios e instrucciones.
-- Preferencia por instrucciones en español y respaldo en inglés.
+- Interfaz disponible en español e inglés.
+- Detección automática del idioma del dispositivo.
+- Selector manual de idioma con preferencia persistente.
+- Traducción de músculos, equipos y mensajes de la interfaz.
+- Instrucciones según el idioma activo, con respaldo si una traducción no existe.
 - Tema oscuro y estados de carga mediante skeletons.
 - Caché de imágenes y manejo de errores de red.
 - API documentada automáticamente con OpenAPI/Swagger.
@@ -62,6 +66,8 @@ La documentación específica está en [backend/README.md](backend/README.md) y 
 | Cliente HTTP | `http` | Comunicación con la API |
 | Imágenes | `cached_network_image` | Descarga y caché multimedia |
 | Carga visual | `skeletonizer` | Placeholders animados |
+| Preferencias | `shared_preferences` | Persistencia del idioma seleccionado |
+| Localización | Flutter Intl/ARB | Interfaz en español e inglés |
 | Backend | Python y FastAPI | API, validación y lógica |
 | Servidor | Uvicorn | Ejecución de FastAPI |
 | Modelos | Pydantic | Validación de respuestas |
@@ -183,6 +189,7 @@ El catálogo `backend/data/exercises.json` y sus recursos multimedia proceden de
 - Las imágenes y los GIF dependen de recursos externos.
 - La aplicación muestra la primera página de hasta 20 ejercicios por músculo.
 - La dirección del backend se configura actualmente en el código.
+- Los nombres propios de los ejercicios se conservan en inglés porque el dataset no incluye nombres traducidos.
 - La generación de rutinas con IA no está implementada.
 
 ## Próximos pasos
@@ -195,6 +202,10 @@ El catálogo `backend/data/exercises.json` y sus recursos multimedia proceden de
 6. Evaluar usuarios, favoritos e historial de entrenamiento.
 7. Diseñar y validar la futura función **«Haz mi rutina»**.
 
+## Idiomas
+
+La aplicación permite usar español, inglés o el idioma del dispositivo. La selección se guarda localmente y se restaura al volver a abrirla. Los textos de interfaz, músculos, equipos e instrucciones se localizan; los nombres de los ejercicios permanecen en su inglés original durante la V1.1.
+
 ## Estado del proyecto
 
-V1 funcional orientada a demostración académica y desarrollo local. No se considera todavía una aplicación lista para producción.
+V1.1 funcional orientada a demostración académica y desarrollo local. No se considera todavía una aplicación lista para producción.
