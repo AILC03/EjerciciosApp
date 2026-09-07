@@ -1,16 +1,18 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class Exercise(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     name: str
     category: str
     body_part: str
     equipment: str
     instructions: dict[str, str | list[str]]
-    instruction_steps: dict[str, list[str]]
+    instruction_steps: dict[str, list[str]] | list[str]
     muscle_group: str
     secondary_muscles: list[str]
     target: str
@@ -21,6 +23,8 @@ class Exercise(BaseModel):
     created_at: datetime
 
 class ExerciseSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     name: str
     body_part: str

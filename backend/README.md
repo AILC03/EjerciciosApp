@@ -9,7 +9,7 @@ La aplicación todavía no genera rutinas con inteligencia artificial. La opció
 Actualmente el backend puede:
 
 - Comprobar que el servidor está funcionando.
-- Leer un catálogo de 1,324 ejercicios desde `exercises.json`.
+- Consultar un catálogo de 1,324 ejercicios almacenado en PostgreSQL.
 - Devolver los ejercicios por páginas.
 - Buscar ejercicios por nombre.
 - Filtrar por músculo principal, equipo y parte del cuerpo.
@@ -29,7 +29,11 @@ Actualmente el backend puede:
 - **Pydantic:** definición y validación de los modelos de respuesta.
 - **Pytest:** ejecución de pruebas automatizadas.
 - **HTTPX/TestClient:** simulación de peticiones HTTP durante las pruebas.
-- **JSON:** almacenamiento del catálogo en la primera versión.
+- **PostgreSQL:** almacenamiento persistente del catálogo.
+- **SQLAlchemy:** ORM utilizado para modelar y consultar las tablas.
+- **Psycopg:** controlador que comunica SQLAlchemy con PostgreSQL.
+- **Alembic:** creación y versionado del esquema de la base de datos.
+- **JSON:** fuente del catálogo utilizada durante la carga inicial.
 
 ## 3. Estructura del proyecto
 
@@ -114,16 +118,9 @@ Los modelos permiten que FastAPI valide los datos y muestre sus estructuras en `
 
 ### `app/repositories/exercise_repository.py`
 
-Es la capa de acceso a los datos. Localiza `data/exercises.json`, abre el archivo y convierte su contenido en objetos de Python.
+Es la capa de acceso a PostgreSQL. Construye consultas SQLAlchemy para obtener ejercicios paginados, buscar por ID y recuperar valores únicos de músculos, equipos y partes del cuerpo.
 
-El dataset se carga una vez cuando inicia la aplicación y permanece en memoria. De esta forma, el backend no vuelve a abrir el archivo en cada petición.
-
-El repositorio ofrece operaciones básicas para:
-
-- Obtener todos los ejercicios.
-- Buscar un ejercicio por ID.
-
-Si en el futuro se utiliza PostgreSQL, esta es la capa que deberá adaptarse principalmente.
+`app/database.py` crea el motor y las sesiones. `app/db_models/exercise.py` relaciona `ExerciseModel` con la tabla `exercises`.
 
 ### `app/services/exercise_service.py`
 
@@ -153,11 +150,11 @@ Esta capa también establece:
 
 ### `data/exercises.json`
 
-Es la fuente de datos de la V1. Procede del repositorio [`hasaneyldrm/exercises-dataset`](https://github.com/hasaneyldrm/exercises-dataset) y contiene 1,324 ejercicios.
+Es la fuente de importación inicial. Procede del repositorio [`hasaneyldrm/exercises-dataset`](https://github.com/hasaneyldrm/exercises-dataset) y contiene 1,324 ejercicios.
 
 Cada registro puede incluir nombre, parte del cuerpo, músculo objetivo, equipo, instrucciones en varios idiomas, imagen, GIF y atribución.
 
-El backend utiliza este archivo únicamente para lectura. No permite crear, editar ni eliminar ejercicios.
+El script `scripts/seed_exercises.py` sincroniza estos datos con PostgreSQL sin duplicar IDs. Los endpoints no leen el JSON durante las peticiones.
 
 ### `test/test_exercises.py`
 
@@ -406,7 +403,7 @@ Las pruebas automatizadas comprueban que el origen del frontend recibe `Access-C
 
 ## 11. Limitaciones actuales
 
-- Los datos se leen desde JSON y no desde una base de datos.
+- PostgreSQL debe estar disponible para atender las consultas.
 - El catálogo es de solo lectura.
 - No existen usuarios, autenticación ni progreso personal.
 - Los recursos multimedia dependen de GitHub.
@@ -420,14 +417,17 @@ Las pruebas automatizadas comprueban que el origen del frontend recibe `Access-C
 3. Mejorar el manejo de errores al cargar el dataset.
 4. Conectar el frontend con el catálogo y los selectores.
 5. Evaluar almacenamiento local o externo para los recursos multimedia.
-6. Incorporar una base de datos si la aplicación necesita modificar ejercicios.
+6. Agregar usuarios, autenticación y ejercicios favoritos.
 7. Diseñar en una versión futura la funcionalidad **“Haz mi rutina”**.
 
 ## 13. Ejecución del proyecto
 
-Con el entorno virtual activo:
+Con PostgreSQL activo y el entorno virtual preparado:
 
 ```powershell
+Copy-Item .env.example .env
+alembic upgrade head
+python -m scripts.seed_exercises
 python -m uvicorn app.main:app --reload
 ```
 
@@ -443,4 +443,4 @@ Para ejecutar las pruebas:
 python -m pytest -v
 ```
 
-En conclusión, el backend actual funciona como una capa organizada entre el frontend y el dataset: recibe consultas, aplica reglas, valida resultados y entrega respuestas JSON listas para mostrarse en la aplicación.
+En conclusión, el backend funciona como una capa organizada entre Flutter y PostgreSQL: recibe consultas, aplica reglas, accede a los datos mediante SQLAlchemy, valida resultados y entrega respuestas JSON listas para mostrarse.

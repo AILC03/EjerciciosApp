@@ -5,6 +5,7 @@ venv/
 # Variables y secretos
 .env
 .env.*
+!.env.example
 
 # Python
 __pycache__/

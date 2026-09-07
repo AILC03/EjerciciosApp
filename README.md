@@ -4,7 +4,7 @@ Aplicación móvil universitaria para consultar un catálogo de ejercicios agrup
 
 La primera versión es un catálogo de solo lectura. La generación inteligente de rutinas, identificada como **«Haz mi rutina»**, forma parte de una versión futura y todavía no está implementada.
 
-## Funcionalidades de la V1.1
+## Funcionalidades de la V1.2
 
 - Selección visual de 19 grupos musculares.
 - Consulta de ejercicios filtrados por músculo principal.
@@ -33,7 +33,7 @@ API REST FastAPI
        └── Repository: carga el catálogo
                     │
                     ▼
-             exercises.json
+              PostgreSQL
 ```
 
 El repositorio es un monorepositorio con dos aplicaciones:
@@ -71,7 +71,11 @@ La documentación específica está en [backend/README.md](backend/README.md) y 
 | Backend | Python y FastAPI | API, validación y lógica |
 | Servidor | Uvicorn | Ejecución de FastAPI |
 | Modelos | Pydantic | Validación de respuestas |
-| Datos V1 | JSON | Catálogo local de ejercicios |
+| Base de datos | PostgreSQL | Persistencia del catálogo |
+| ORM | SQLAlchemy | Modelos y consultas de datos |
+| Controlador | Psycopg | Comunicación con PostgreSQL |
+| Migraciones | Alembic | Versionado del esquema |
+| Dataset inicial | JSON | Fuente utilizada por el seed |
 | Pruebas | Pytest y Flutter Test | Verificación automática |
 
 ## Requisitos
@@ -80,6 +84,7 @@ La documentación específica está en [backend/README.md](backend/README.md) y 
 - Python 3.12 o una versión compatible con las dependencias.
 - Flutter SDK con soporte para Android.
 - Android Studio, Android SDK y un emulador, o un dispositivo Android físico.
+- PostgreSQL.
 
 Para desarrollar para iOS se requiere macOS y Xcode. Un emulador de iPhone no puede ejecutarse oficialmente desde Windows.
 
@@ -99,6 +104,9 @@ cd backend
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
+Copy-Item .env.example .env
+alembic upgrade head
+python -m scripts.seed_exercises
 python -m uvicorn app.main:app --reload
 ```
 
@@ -154,7 +162,7 @@ GET /api/v1/exercises?muscle=pectorals&page=1&page_size=20
 2. La pantalla inicial los muestra con una imagen local.
 3. El usuario selecciona un músculo.
 4. Flutter solicita los ejercicios filtrados.
-5. La API lee el catálogo en memoria, filtra y devuelve JSON paginado.
+5. La API consulta PostgreSQL mediante SQLAlchemy y devuelve JSON paginado.
 6. Flutter presenta las tarjetas y conserva en caché las imágenes.
 7. Al seleccionar una tarjeta, la aplicación solicita el detalle por ID.
 8. La ficha muestra el GIF y las instrucciones disponibles.
@@ -185,7 +193,7 @@ El catálogo `backend/data/exercises.json` y sus recursos multimedia proceden de
 
 - No hay autenticación, perfiles ni seguimiento de progreso.
 - No se crean, modifican ni eliminan ejercicios.
-- Los datos se cargan desde JSON, no desde una base de datos.
+- PostgreSQL debe estar activo para ejecutar el backend.
 - Las imágenes y los GIF dependen de recursos externos.
 - La aplicación muestra la primera página de hasta 20 ejercicios por músculo.
 - La dirección del backend se configura actualmente en el código.
@@ -194,7 +202,7 @@ El catálogo `backend/data/exercises.json` y sus recursos multimedia proceden de
 
 ## Próximos pasos
 
-1. Extraer la URL de la API a configuración por entorno.
+1. Extraer la URL de la API móvil a configuración por entorno.
 2. Incorporar paginación o carga incremental en Flutter.
 3. Agregar búsqueda y filtros por equipo.
 4. Mejorar cobertura de pruebas de widgets y servicios.
@@ -208,4 +216,4 @@ La aplicación permite usar español, inglés o el idioma del dispositivo. La se
 
 ## Estado del proyecto
 
-V1.1 funcional orientada a demostración académica y desarrollo local. No se considera todavía una aplicación lista para producción.
+V1.2 funcional: catálogo móvil bilingüe respaldado por PostgreSQL, SQLAlchemy y migraciones Alembic. Continúa orientada a demostración académica y desarrollo local.

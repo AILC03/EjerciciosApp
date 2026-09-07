@@ -30,6 +30,7 @@ def test_get_exercises_with_pagination():
     assert data["total"] > 0
     assert data["pages"] > 0
     assert len(data["items"]) == 5
+    assert data["items"][0]["image"].startswith("https://")
 
 
 def test_filter_exercises_by_muscle():
@@ -84,6 +85,8 @@ def test_get_exercise_by_id():
     assert data["id"] == "0001"
     assert "name" in data
     assert "target" in data
+    assert data["image"].startswith("https://")
+    assert data["gif_url"].startswith("https://")
 
 
 def test_exercise_not_found():

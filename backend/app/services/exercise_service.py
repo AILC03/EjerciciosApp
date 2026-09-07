@@ -1,118 +1,71 @@
+from math import ceil
+
+from sqlalchemy.orm import Session
+
 from app.config import DATASET_MEDIA_BASE_URL
+from app.models.exercise import Exercise, ExerciseSummary
 from app.repositories import exercise_repository
 
 
-def add_media_urls(exercise: dict) -> dict:
-    exercise_with_urls = exercise.copy()
+def _absolute_media_url(path: str) -> str:
+    if not path or path.startswith(("http://", "https://")):
+        return path
 
-    image_path = exercise.get("image")
-    gif_path = exercise.get("gif_url")
-
-    if image_path:
-        exercise_with_urls["image"] = (
-            f"{DATASET_MEDIA_BASE_URL}/{image_path}"
-        )
-
-    if gif_path:
-        exercise_with_urls["gif_url"] = (
-            f"{DATASET_MEDIA_BASE_URL}/{gif_path}"
-        )
-
-    return exercise_with_urls
+    return f"{DATASET_MEDIA_BASE_URL.rstrip('/')}/{path.lstrip('/')}"
 
 
-def get_exercises(
-    muscle: str | None = None,
-    search: str | None = None,
-    equipment: str | None = None,
-    body_part: str | None = None,
-    page: int = 1,
-    page_size: int = 20,
-) -> tuple[list[dict], int]:
-    exercises = exercise_repository.get_all()
+def _serialize_exercise(exercise, schema):
+    data = schema.model_validate(exercise).model_dump()
+    data["image"] = _absolute_media_url(data["image"])
+    data["gif_url"] = _absolute_media_url(data["gif_url"])
+    return data
 
-    if muscle:
-        normalized_muscle = muscle.strip().casefold()
 
-        exercises = [
-            exercise
-            for exercise in exercises
-            if exercise.get("target", "").strip().casefold()
-            == normalized_muscle
-        ]
-
-    if search:
-        normalized_search = search.strip().casefold()
-
-        exercises = [
-            exercise
-            for exercise in exercises
-            if normalized_search
-            in exercise.get("name", "").casefold()
-        ]
-
-    if equipment:
-        normalized_equipment = equipment.strip().casefold()
-
-        exercises = [
-            exercise
-            for exercise in exercises
-            if exercise.get("equipment", "").strip().casefold()
-            == normalized_equipment
-        ]
-
-    if body_part:
-        normalized_body_part = body_part.strip().casefold()
-
-        exercises = [
-            exercise
-            for exercise in exercises
-            if exercise.get("body_part", "").strip().casefold()
-            == normalized_body_part
-        ]
-
-    total = len(exercises)
-
-    start = (page - 1) * page_size
-    end = start + page_size
-
-    paginated_exercises = exercises[start:end]
-
-    exercises_with_media_urls = [
-        add_media_urls(exercise)
-        for exercise in paginated_exercises
-    ]
-
-    return exercises_with_media_urls, total
-
-def get_unique_values(field: str) -> list[str]:
-    exercises = exercise_repository.get_all()
-
-    return sorted(
-        {
-            exercise.get(field, "").strip()
-            for exercise in exercises
-            if exercise.get(field)
-        }
+def list_exercises(
+    session: Session,
+    muscle: str | None,
+    page: int,
+    page_size: int,
+):
+    exercises, total = exercise_repository.get_exercises(
+        session=session,
+        muscle=muscle,
+        page=page,
+        page_size=page_size,
     )
 
+    return {
+        "items": [
+            _serialize_exercise(exercise, ExerciseSummary)
+            for exercise in exercises
+        ],
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "pages": ceil(total / page_size),
+        "muscle": muscle,
+        "search": None,
+        "equipment": None,
+        "body_part": None,
+    }
 
-def get_muscles() -> list[str]:
-    return get_unique_values("target")
 
-
-def get_equipment() -> list[str]:
-    return get_unique_values("equipment")
-
-
-def get_body_parts() -> list[str]:
-    return get_unique_values("body_part")
-
-
-def get_exercise_by_id(exercise_id: str) -> dict | None:
-    exercise = exercise_repository.get_by_id(exercise_id)
+def get_exercise_by_id(session: Session, exercise_id: str):
+    exercise = exercise_repository.get_exercise_by_id(session, exercise_id)
 
     if exercise is None:
         return None
 
-    return add_media_urls(exercise)
+    return _serialize_exercise(exercise, Exercise)
+
+
+def get_muscles(session: Session) -> list[str]:
+    return exercise_repository.get_muscles(session)
+
+
+def get_equipment(session: Session) -> list[str]:
+    return exercise_repository.get_equipment(session)
+
+
+def get_body_parts(session: Session) -> list[str]:
+    return exercise_repository.get_body_parts(session)
