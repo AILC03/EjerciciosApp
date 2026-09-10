@@ -425,7 +425,7 @@ Las pruebas automatizadas comprueban que el origen del frontend recibe `Access-C
 Con PostgreSQL activo y el entorno virtual preparado:
 
 ```powershell
-Copy-Item .env.example .env
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
 alembic upgrade head
 python -m scripts.seed_exercises
 python -m uvicorn app.main:app --reload

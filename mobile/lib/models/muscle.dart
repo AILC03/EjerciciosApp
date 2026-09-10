@@ -8,7 +8,7 @@ class Muscle {
   String get imagePath {
     final filename = apiValue.replaceAll(' ', '_');
 
-    return 'assets/images/muscles/$filename.png';
+    return 'assets/images/muscles/$filename.webp';
   }
 
   String localizedLabel(AppLocalizations texts) {

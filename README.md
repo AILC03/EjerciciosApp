@@ -104,7 +104,7 @@ cd backend
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
-Copy-Item .env.example .env
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
 alembic upgrade head
 python -m scripts.seed_exercises
 python -m uvicorn app.main:app --reload

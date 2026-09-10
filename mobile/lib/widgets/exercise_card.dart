@@ -100,6 +100,9 @@ class _ExerciseImage extends StatelessWidget {
     return CachedNetworkImage(
       imageUrl: imageUrl,
       fit: BoxFit.cover,
+      memCacheWidth: 300,
+      memCacheHeight: 300,
+      maxWidthDiskCache: 600,
       placeholder: (context, url) {
         return const MediaSkeleton();
       },

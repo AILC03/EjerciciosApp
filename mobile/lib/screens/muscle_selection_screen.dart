@@ -146,6 +146,8 @@ class _MuscleSelectionScreenState extends State<MuscleSelectionScreen> {
                                   child: Image.asset(
                                     muscle.imagePath,
                                     width: double.infinity,
+                                    cacheWidth: 400,
+                                    cacheHeight: 400,
                                     fit: BoxFit.contain,
                                     errorBuilder: (context, error, stackTrace) {
                                       return const Center(
