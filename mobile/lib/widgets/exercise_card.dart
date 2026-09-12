@@ -9,8 +9,18 @@ import 'loading_skeletons.dart';
 class ExerciseCard extends StatelessWidget {
   final Exercise exercise;
   final VoidCallback? onTap;
+  final VoidCallback? onFavoritePressed;
+  final bool isFavorite;
+  final bool isFavoriteLoading;
 
-  const ExerciseCard({super.key, required this.exercise, this.onTap});
+  const ExerciseCard({
+    super.key,
+    required this.exercise,
+    this.onTap,
+    this.onFavoritePressed,
+    this.isFavorite = false,
+    this.isFavoriteLoading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -72,11 +82,34 @@ class ExerciseCard extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Icon(
-                  Icons.chevron_right,
-                  color: colorScheme.onSurfaceVariant,
-                ),
+                padding: const EdgeInsets.only(right: 4),
+                child: onFavoritePressed == null
+                    ? Icon(
+                        Icons.chevron_right,
+                        color: colorScheme.onSurfaceVariant,
+                      )
+                    : isFavoriteLoading
+                    ? const SizedBox.square(
+                        dimension: 48,
+                        child: Center(
+                          child: SizedBox.square(
+                            dimension: 22,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                      )
+                    : IconButton(
+                        onPressed: onFavoritePressed,
+                        tooltip: isFavorite
+                            ? texts.removeFavorite
+                            : texts.addFavorite,
+                        icon: Icon(
+                          isFavorite ? Icons.favorite : Icons.favorite_border,
+                          color: isFavorite
+                              ? colorScheme.error
+                              : colorScheme.onSurfaceVariant,
+                        ),
+                      ),
               ),
             ],
           ),

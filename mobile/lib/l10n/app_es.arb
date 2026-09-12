@@ -117,5 +117,19 @@
 "backToLogin": "Iniciar sesión",
 "logout": "Cerrar sesión",
 "logoutConfirmation": "¿Quieres cerrar tu sesión?",
-"cancel": "Cancelar"
+"cancel": "Cancelar",
+"addFavorite": "Agregar a favoritos",
+"removeFavorite": "Quitar de favoritos",
+"favoritesTitle": "Mis favoritos",
+"noFavorites": "Aún no tienes favoritos",
+"noFavoritesDescription": "Pulsa el corazón de un ejercicio para guardarlo.",
+"favoritesLoadError": "No pudimos cargar tus favoritos.",
+"favoriteExerciseCount": "{count, plural, =1{1 ejercicio} other{{count} ejercicios}}",
+"@favoriteExerciseCount": {
+  "placeholders": {
+    "count": {
+      "type": "int"
+    }
+  }
+}
 }

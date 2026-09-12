@@ -1,148 +1,234 @@
-# Aplicación móvil de EjerciciosApp
+# Aplicación Flutter de EjerciciosApp
 
-Cliente móvil desarrollado con Flutter. Muestra los grupos musculares disponibles, consulta al backend los ejercicios correspondientes y presenta el detalle de cada ejercicio.
+Cliente móvil y web de EjerciciosApp. Permite consultar ejercicios por músculo sin iniciar sesión y ofrece autenticación opcional para guardar favoritos personales.
 
-La versión 1.1 incorpora una interfaz bilingüe en español e inglés, detección del idioma del dispositivo y selección manual persistente.
+## Funcionalidades de la V1.3
 
-## Experiencia de usuario
+- Selección visual del músculo que se desea entrenar.
+- Lista de ejercicios filtrada por músculo principal.
+- Detalle con GIF, equipo, músculos e instrucciones.
+- Español, inglés e idioma automático del dispositivo.
+- Tema oscuro, skeletons y caché multimedia.
+- Registro, inicio y cierre de sesión.
+- Recuperación automática de una sesión guardada.
+- Favoritos desde las tarjetas y desde el detalle.
+- Pantalla de favoritos agrupados por músculo en menús desplegables.
+
+El catálogo es público. Si una persona intenta guardar un ejercicio sin sesión, la aplicación abre el flujo de autenticación.
+
+## Flujo de pantallas
 
 ```text
-Inicio → Selección de músculo → Lista filtrada → Detalle del ejercicio
+Selección de músculos
+        │
+        ├── Músculo → Lista de ejercicios → Detalle
+        │                                  └── Favorito
+        │
+        ├── Cuenta → Login ↔ Registro
+        │
+        └── Mis favoritos → Grupos desplegables → Detalle
 ```
 
-La aplicación no abre un catálogo sin filtro: la primera decisión del usuario es el músculo que desea entrenar.
+## Pantallas
 
-### Pantalla de músculos
+### Selección de músculos
 
+- Es la pantalla inicial para usuarios con o sin cuenta.
 - Solicita `GET /api/v1/muscles`.
-- Traduce los valores técnicos al idioma activo.
-- Asocia cada músculo con una imagen de `assets/images/muscles/`.
-- Abre la lista filtrada al pulsar una tarjeta.
+- Muestra imágenes locales y nombres traducidos.
+- Permite cambiar el idioma.
+- Muestra acceso a la cuenta o cierre de sesión.
+- Muestra el acceso a favoritos cuando existe una sesión.
 
-### Pantalla de ejercicios
+### Ejercicios
 
 - Solicita `GET /api/v1/exercises?muscle=...`.
-- Muestra imagen, nombre y equipo en cada tarjeta.
-- Conserva las imágenes en caché.
-- Abre el detalle utilizando el ID del ejercicio.
+- Muestra imagen, nombre, equipo y corazón en cada tarjeta.
+- Abre el login si un invitado intenta guardar un favorito.
+- Agrega o elimina el favorito inmediatamente cuando hay sesión.
 
-### Pantalla de detalle
+### Detalle
 
 - Solicita `GET /api/v1/exercises/{id}`.
-- Presenta nombre, GIF, equipo y músculo principal.
-- Incluye músculos secundarios cuando existen.
-- Muestra instrucciones según el idioma activo y utiliza el otro idioma como respaldo.
-- Muestra la atribución proporcionada por el dataset.
+- Presenta nombre, GIF, equipo, músculos e instrucciones.
+- Elige instrucciones según el idioma activo y aplica un idioma de respaldo.
+- Permite agregar o quitar el ejercicio de favoritos.
 
-## Estados de interfaz
+### Autenticación
 
-Cada pantalla contempla:
+- `LoginScreen` inicia sesión con correo y contraseña.
+- `RegisterScreen` crea una cuenta.
+- `AuthFlowScreen` permite alternar entre ambas pantallas.
+- `AuthGate` espera la restauración inicial de la sesión sin impedir el uso público del catálogo.
 
-- **Carga:** skeletons con la forma aproximada del contenido.
-- **Contenido:** información recibida correctamente.
-- **Vacío:** mensaje cuando no hay ejercicios.
-- **Error:** explicación y botón para reintentar.
-- **Error multimedia:** icono alternativo para imágenes o GIF no disponibles.
+### Favoritos
 
-Los skeletons generales aparecen mientras responde la API. Cada imagen y GIF tiene además su propio skeleton, por lo que un solo recurso multimedia no bloquea el resto de la pantalla.
+- Solicita `GET /api/v1/favorites` con el JWT.
+- Agrupa los ejercicios por `target`, que representa el músculo principal usado por el catálogo.
+- Cada músculo se muestra mediante un `ExpansionTile`.
+- Permite abrir el detalle o retirar el favorito.
 
-## Tecnologías y paquetes
+## Arquitectura interna
 
-| Paquete | Uso |
-|---|---|
-| Flutter / Material | Interfaz, tema y navegación |
-| `http` | Peticiones HTTP a FastAPI |
-| `cached_network_image` | Caché y estados multimedia |
-| `skeletonizer` | Estados visuales de carga |
-| `flutter_localizations` / `intl` | Generación y aplicación de traducciones |
-| `shared_preferences` | Persistencia del idioma seleccionado |
-| `flutter_test` | Pruebas automatizadas |
+```text
+Pantallas y widgets
+        │ acciones del usuario
+        ▼
+Controllers (Provider)
+        │ coordinan estado
+        ▼
+Services
+        │ HTTP/JSON
+        ▼
+FastAPI
+```
 
-Las versiones exactas se encuentran en `pubspec.yaml` y `pubspec.lock`.
+### Controllers
+
+- `AuthController`: inicializa, registra, inicia y cierra la sesión; expone el usuario y los estados de carga/error.
+- `FavoritesController`: carga la colección del usuario, reconoce qué ejercicios están guardados y coordina altas y bajas.
+- `LocaleController`: administra y conserva el idioma seleccionado.
+
+`main.dart` registra los controllers con Provider. `FavoritesController` observa a `AuthController`: carga favoritos al iniciar sesión y los limpia al cerrarla.
+
+### Services
+
+- `ExerciseService`: consulta músculos, listas y detalles.
+- `AuthService`: realiza registro, login y consulta del usuario actual.
+- `FavoriteService`: lista, agrega y elimina favoritos.
+- `TokenStorage`: guarda y recupera el JWT mediante almacenamiento seguro.
+- `ApiException`: representa errores HTTP que la interfaz puede mostrar.
+
+### Models
+
+- `Muscle`: valor de la API, traducción e imagen local.
+- `Exercise`: resumen utilizado en tarjetas.
+- `ExerciseDetail`: información completa y conversión a `Exercise` para favoritos.
+- `User`: usuario autenticado.
+- `AuthToken`: token recibido durante el login.
 
 ## Estructura
 
 ```text
 mobile/
-├── assets/images/muscles/       Imágenes locales de músculos
+├── assets/images/muscles/
 ├── lib/
-│   ├── main.dart                Inicio de MaterialApp
+│   ├── main.dart
+│   ├── config/
+│   │   └── api_config.dart
+│   ├── controllers/
+│   │   ├── auth_controller.dart
+│   │   └── favorites_controller.dart
 │   ├── l10n/
-│   │   ├── app_es.arb           Textos en español
-│   │   ├── app_en.arb           Textos en inglés
-│   │   ├── exercise_labels.dart Traducción de valores del dataset
-│   │   └── locale_controller.dart Idioma activo y persistencia
+│   │   ├── app_es.arb
+│   │   ├── app_en.arb
+│   │   ├── exercise_labels.dart
+│   │   └── locale_controller.dart
 │   ├── models/
-│   │   ├── muscle.dart          Traducciones y rutas de imágenes
-│   │   ├── exercise.dart        Modelo resumido para tarjetas
-│   │   └── exercise_detail.dart Modelo completo e instrucciones
 │   ├── screens/
+│   │   ├── auth/
 │   │   ├── muscle_selection_screen.dart
 │   │   ├── exercise_screen.dart
-│   │   └── exercise_detail_screen.dart
+│   │   ├── exercise_detail_screen.dart
+│   │   └── favorites_screen.dart
 │   ├── services/
-│   │   └── exercise_service.dart Cliente HTTP y conversión JSON
 │   ├── theme/
-│   │   └── app_theme.dart       Paleta oscura y estilos globales
 │   └── widgets/
-│       ├── exercise_card.dart   Tarjeta reutilizable
-│       └── loading_skeletons.dart Estados de carga
-├── test/widget_test.dart        Pruebas de modelos
-├── pubspec.yaml                 Dependencias y recursos
+├── test/
+├── web/
+├── pubspec.yaml
 └── README.md
 ```
 
-## Flujo interno
+## Tecnologías y paquetes
 
-1. Una pantalla llama a `ExerciseService`.
-2. El servicio construye la URL y realiza la petición con un límite de 15 segundos.
-3. Una respuesta distinta de `200` se convierte en una excepción.
-4. El cuerpo UTF-8 se decodifica desde JSON.
-5. `Muscle`, `Exercise` o `ExerciseDetail` convierten los campos.
-6. El `FutureBuilder` cambia del skeleton a contenido, vacío o error.
-7. `CachedNetworkImage` descarga y almacena la multimedia.
+| Paquete | Uso |
+|---|---|
+| Flutter y Material | Interfaz y navegación |
+| `provider` | Estado compartido |
+| `http` | Peticiones a FastAPI |
+| `flutter_secure_storage` | Persistencia del token |
+| `cached_network_image` | Caché de imágenes y GIF |
+| `skeletonizer` | Estados visuales de carga |
+| `flutter_localizations` e `intl` | Traducciones |
+| `shared_preferences` | Preferencia de idioma |
+| `flutter_test` | Pruebas automatizadas |
+
+Las versiones exactas se encuentran en `pubspec.yaml` y `pubspec.lock`.
+
+## Configuración de la API
+
+`lib/config/api_config.dart` obtiene la URL mediante una variable de compilación:
+
+```dart
+const String.fromEnvironment('API_BASE_URL')
+```
+
+Si no se proporciona, usa `http://10.0.2.2:8000`.
+
+| Entorno | Dirección |
+|---|---|
+| Emulador Android | `http://10.0.2.2:8000` |
+| Chrome en la misma PC | `http://127.0.0.1:8000` |
+| Teléfono físico | `http://IP_LOCAL_DE_LA_PC:8000` |
+
+Android:
+
+```powershell
+flutter run -d emulator-5554
+```
+
+Chrome:
+
+```powershell
+flutter run -d chrome --web-port 5173 --dart-define=API_BASE_URL=http://127.0.0.1:8000
+```
+
+Teléfono físico:
+
+```powershell
+flutter run -d ID_DEL_TELEFONO --dart-define=API_BASE_URL=http://IP_LOCAL_DE_LA_PC:8000
+```
+
+Para un teléfono físico, el backend debe iniciarse con `--host 0.0.0.0`, ambos dispositivos deben compartir red y el firewall debe permitir el puerto 8000.
+
+## Sesión y seguridad
+
+1. `AuthService` recibe el JWT del backend.
+2. `TokenStorage` lo guarda con `flutter_secure_storage`.
+3. Al abrir la aplicación, `AuthController` intenta recuperar el token.
+4. `/api/v1/auth/me` confirma si sigue siendo válido.
+5. `FavoriteService` añade `Authorization: Bearer ...` a sus peticiones.
+6. Al cerrar sesión se elimina el token y se vacían los favoritos locales.
+
+El cliente no guarda la contraseña. La validación definitiva de identidad siempre ocurre en el backend.
 
 ## Internacionalización
 
-El botón de idioma de la pantalla principal ofrece tres opciones:
+Los archivos fuente son:
 
-- Idioma del dispositivo.
-- Español.
-- English.
+- `lib/l10n/app_es.arb`
+- `lib/l10n/app_en.arb`
 
-`LocaleController` guarda la selección mediante `shared_preferences` y reconstruye `MaterialApp` al cambiarla. Los archivos ARB son la fuente de los textos; los archivos `app_localizations*.dart` son generados por Flutter y no deben editarse manualmente.
+Después de modificarlos:
 
 ```powershell
 flutter gen-l10n
 ```
 
-La localización cubre la interfaz, músculos, equipos e instrucciones. Los nombres de los ejercicios permanecen en inglés porque el dataset actual no proporciona traducciones revisadas para ese campo.
+Los archivos `app_localizations*.dart` son generados y no deben editarse manualmente. Los nombres de ejercicios permanecen en inglés cuando el dataset no proporciona traducciones.
 
-## Configuración del backend
+## Carga, errores y caché
 
-La URL está definida en `lib/services/exercise_service.dart`:
+- Los skeletons representan la forma del contenido mientras responde la API.
+- `CachedNetworkImage` conserva recursos para reducir descargas posteriores.
+- Una imagen o GIF que falla muestra un reemplazo visual.
+- Las pantallas ofrecen reintento cuando falla la petición principal.
+- Los botones de favorito muestran un indicador durante la actualización.
 
-```dart
-static const baseUrl = 'http://10.0.2.2:8000';
-```
+## Instalación
 
-| Entorno | Dirección sugerida |
-|---|---|
-| Emulador Android | `http://10.0.2.2:8000` |
-| Flutter Web en la misma PC | `http://127.0.0.1:8000` |
-| Teléfono físico | `http://IP_LOCAL_DE_LA_PC:8000` |
-
-Para un teléfono físico, inicia el backend de forma accesible en la red:
-
-```powershell
-python -m uvicorn app.main:app --reload --host 0.0.0.0
-```
-
-La computadora y el teléfono deben compartir red y el firewall debe permitir el puerto 8000.
-
-## Instalación y ejecución
-
-Primero inicia el backend. Después, desde `mobile`:
+Con Flutter configurado y el backend activo:
 
 ```powershell
 flutter pub get
@@ -151,7 +237,7 @@ flutter devices
 flutter run -d emulator-5554
 ```
 
-Sustituye `emulator-5554` por el identificador mostrado por `flutter devices`. Si agregas recursos o dependencias, realiza un reinicio completo en lugar de depender únicamente de hot reload.
+Después de agregar dependencias, recursos o clases generadas, realiza un reinicio completo de la aplicación.
 
 ## Verificación
 
@@ -161,52 +247,32 @@ flutter analyze
 flutter test
 ```
 
-Las pruebas incluyen conversión de modelos, selección y respaldo de instrucciones, traducción de etiquetas y persistencia del idioma.
+Las pruebas cubren modelos, traducciones, preferencia de idioma, servicios de autenticación, recuperación de sesión, servicio de favoritos y lógica de `FavoritesController`.
 
-## Imágenes de músculos
+## Prueba manual recomendada
 
-Los archivos deben estar en `assets/images/muscles/` y usar el valor de la API en minúsculas, reemplazando espacios por guiones bajos:
-
-```text
-pectorals         → pectorals.png
-upper back        → upper_back.png
-serratus anterior → serratus_anterior.png
-```
-
-La carpeta completa está declarada como recurso en `pubspec.yaml`.
+1. Abrir el catálogo como invitado.
+2. Intentar guardar un ejercicio y comprobar que aparezca el login.
+3. Registrar una cuenta o iniciar sesión.
+4. Agregar favoritos desde una tarjeta y desde el detalle.
+5. Abrir “Mis favoritos” y desplegar cada músculo.
+6. Eliminar un favorito y verificar que desaparezca en todas las pantallas.
+7. Cerrar sesión y confirmar que el catálogo siga disponible.
+8. Reiniciar la aplicación y comprobar la recuperación de una sesión válida.
 
 ## Decisiones de diseño
 
-- Tema oscuro verde azulado con acento amarillo.
-- Material Design sin una biblioteca completa de componentes externa.
-- Navegación con `Navigator` y `MaterialPageRoute`, suficiente para la V1.
-- Modelos distintos para lista y detalle para no cargar instrucciones en cada tarjeta.
-- Imágenes musculares locales para una pantalla inicial estable.
-- Multimedia de ejercicios remota con caché para reducir descargas repetidas.
+- La autenticación es opcional para conservar un acceso rápido al catálogo.
+- Provider es suficiente para el estado compartido de esta versión.
+- Se usan modelos distintos para lista y detalle para reducir datos innecesarios.
+- Las imágenes musculares son locales; las imágenes y GIF de ejercicios son remotos.
+- Los favoritos se guardan en PostgreSQL, no solamente en el dispositivo.
+- La URL del backend se configura por ambiente sin editar el código fuente.
 
-## Problemas frecuentes
+## Limitaciones
 
-### El health funciona en Windows, pero no en Android
-
-En el emulador, `localhost` apunta al propio emulador. Usa `10.0.2.2` para llegar a Windows.
-
-### No aparece una imagen muscular
-
-Comprueba el nombre y extensión, confirma que esté bajo `assets/images/muscles/`, ejecuta `flutter pub get` y reinicia completamente la app.
-
-### La API no responde
-
-Verifica que Uvicorn esté activo, abre `/health`, confirma la dirección configurada y revisa el firewall.
-
-### El GIF tarda en mostrarse
-
-La primera descarga depende de la red y del servidor multimedia. Durante la espera se muestra un skeleton; visitas posteriores pueden aprovechar la caché.
-
-## Alcance futuro
-
-- Paginación o scroll infinito.
-- Búsqueda y filtros adicionales.
-- Favoritos y almacenamiento local.
-- Configuración de API por ambiente.
-- Pruebas de navegación y peticiones HTTP simuladas.
-- Integración futura de **«Haz mi rutina»**, todavía fuera de la V1.
+- La lista solicita actualmente la primera página de hasta 20 ejercicios.
+- Los recursos multimedia dependen de servicios externos.
+- No hay recuperación de contraseña ni renovación automática del token.
+- No existe modo sin conexión completo.
+- La generación de rutinas con IA todavía no está implementada.

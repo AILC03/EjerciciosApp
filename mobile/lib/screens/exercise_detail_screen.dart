@@ -1,11 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../controllers/favorites_controller.dart';
 import '../l10n/exercise_labels.dart';
 import '../l10n/app_localizations.dart';
 import '../models/exercise_detail.dart';
 import '../services/exercise_service.dart';
 import '../widgets/loading_skeletons.dart';
+import 'auth/auth_flow_screen.dart';
 
 class ExerciseDetailScreen extends StatefulWidget {
   final String exerciseId;
@@ -35,9 +38,37 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
     setState(_load);
   }
 
+  Future<void> _handleFavorite(ExerciseDetail exercise) async {
+    final favoritesController = context.read<FavoritesController>();
+
+    if (!favoritesController.isAuthenticated) {
+      await Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (context) => const AuthFlowScreen()));
+      return;
+    }
+
+    final success = await favoritesController.toggleFavorite(
+      exercise.toExercise(),
+    );
+
+    if (!mounted || success) {
+      return;
+    }
+
+    final message = favoritesController.errorMessage;
+
+    if (message != null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final texts = AppLocalizations.of(context);
+    final favoritesController = context.watch<FavoritesController>();
 
     return Scaffold(
       appBar: AppBar(title: Text(texts.exerciseDetail)),
@@ -54,7 +85,12 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
 
           final exercise = snapshot.data!;
 
-          return _DetailContent(exercise: exercise);
+          return _DetailContent(
+            exercise: exercise,
+            isFavorite: favoritesController.isFavorite(exercise.id),
+            isFavoriteLoading: favoritesController.isUpdating(exercise.id),
+            onFavoritePressed: () => _handleFavorite(exercise),
+          );
         },
       ),
     );
@@ -63,7 +99,16 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
 
 class _DetailContent extends StatelessWidget {
   final ExerciseDetail exercise;
-  const _DetailContent({required this.exercise});
+  final bool isFavorite;
+  final bool isFavoriteLoading;
+  final VoidCallback onFavoritePressed;
+
+  const _DetailContent({
+    required this.exercise,
+    required this.isFavorite,
+    required this.isFavoriteLoading,
+    required this.onFavoritePressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -74,11 +119,29 @@ class _DetailContent extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
-        Text(
-          exercise.name,
-          style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(
+                exercise.name,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            IconButton(
+              onPressed: isFavoriteLoading ? null : onFavoritePressed,
+              tooltip: isFavorite ? texts.removeFavorite : texts.addFavorite,
+              icon: isFavoriteLoading
+                  ? const SizedBox.square(
+                      dimension: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
+            ),
+          ],
         ),
         const SizedBox(height: 16),
         _ExerciseGif(url: exercise.gifUrl),

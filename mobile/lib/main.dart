@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
+import 'controllers/favorites_controller.dart';
 import 'controllers/auth_controller.dart';
 import 'l10n/app_localizations.dart';
 import 'l10n/locale_controller.dart';
@@ -24,8 +25,21 @@ class EjerciciosApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AuthController()..initialize(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthController()..initialize()),
+        ChangeNotifierProxyProvider<AuthController, FavoritesController>(
+          lazy: false,
+          create: (_) => FavoritesController(),
+          update: (context, authController, favoritesController) {
+            final controller = favoritesController ?? FavoritesController();
+
+            controller.updateAuthentication(authController.isAuthenticated);
+
+            return controller;
+          },
+        ),
+      ],
       child: ListenableBuilder(
         listenable: localeController,
         builder: (context, child) {

@@ -1,3 +1,5 @@
+import 'exercise.dart';
+
 class ExerciseDetail {
   final String id;
   final String name;
@@ -6,6 +8,7 @@ class ExerciseDetail {
   final String muscleGroup;
   final List<String> secondaryMuscles;
   final Map<String, List<String>> instructionSteps;
+  final String image;
   final String gifUrl;
   final String attribution;
 
@@ -17,6 +20,7 @@ class ExerciseDetail {
     required this.muscleGroup,
     required this.secondaryMuscles,
     required this.instructionSteps,
+    required this.image,
     required this.gifUrl,
     required this.attribution,
   });
@@ -43,6 +47,16 @@ class ExerciseDetail {
     return const [];
   }
 
+  Exercise toExercise() {
+    return Exercise(
+      id: id,
+      name: name,
+      target: target,
+      equipment: equipment,
+      image: image,
+    );
+  }
+
   factory ExerciseDetail.fromJson(Map<String, dynamic> json) {
     final rawSteps =
         json['instruction_steps'] as Map<String, dynamic>? ?? const {};
@@ -64,6 +78,7 @@ class ExerciseDetail {
               .map((item) => item.toString())
               .toList(),
       instructionSteps: steps,
+      image: json['image'] as String? ?? '',
       gifUrl: json['gif_url'] as String? ?? '',
       attribution: json['attribution'] as String? ?? '',
     );

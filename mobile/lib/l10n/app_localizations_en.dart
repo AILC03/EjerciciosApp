@@ -360,4 +360,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cancel => 'Cancel';
+
+  @override
+  String get addFavorite => 'Add to favorites';
+
+  @override
+  String get removeFavorite => 'Remove from favorites';
+
+  @override
+  String get favoritesTitle => 'My favorites';
+
+  @override
+  String get noFavorites => 'You don\'t have any favorites yet';
+
+  @override
+  String get noFavoritesDescription => 'Tap an exercise heart to save it.';
+
+  @override
+  String get favoritesLoadError => 'We couldn\'t load your favorites.';
+
+  @override
+  String favoriteExerciseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count exercises',
+      one: '1 exercise',
+    );
+    return '$_temp0';
+  }
 }

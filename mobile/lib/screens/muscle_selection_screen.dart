@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'favorites_screen.dart';
 import 'auth/auth_flow_screen.dart';
 import '../controllers/auth_controller.dart';
 import '../l10n/app_localizations.dart';
@@ -45,6 +46,11 @@ class _MuscleSelectionScreenState extends State<MuscleSelectionScreen> {
   Future<void> _openAuthentication() async {
     await Navigator.of(context)
         .push(MaterialPageRoute(builder: (context) => const AuthFlowScreen()));
+  }
+
+  void _openFavorites() {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => const FavoritesScreen()));
   }
 
   Future<void> _logout() async {
@@ -120,13 +126,18 @@ class _MuscleSelectionScreenState extends State<MuscleSelectionScreen> {
               ];
             },
           ),
-          if (authController.isAuthenticated)
+          if (authController.isAuthenticated) ...[
+            IconButton(
+              onPressed: _openFavorites,
+              tooltip: texts.favoritesTitle,
+              icon: const Icon(Icons.favorite_outline),
+            ),
             IconButton(
               onPressed: _logout,
               tooltip: texts.logout,
               icon: const Icon(Icons.logout),
-            )
-          else
+            ),
+          ] else
             IconButton(
               onPressed: _openAuthentication,
               tooltip: texts.login,

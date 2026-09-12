@@ -799,6 +799,48 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Cancelar'**
   String get cancel;
+
+  /// No description provided for @addFavorite.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar a favoritos'**
+  String get addFavorite;
+
+  /// No description provided for @removeFavorite.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar de favoritos'**
+  String get removeFavorite;
+
+  /// No description provided for @favoritesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Mis favoritos'**
+  String get favoritesTitle;
+
+  /// No description provided for @noFavorites.
+  ///
+  /// In es, this message translates to:
+  /// **'Aún no tienes favoritos'**
+  String get noFavorites;
+
+  /// No description provided for @noFavoritesDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Pulsa el corazón de un ejercicio para guardarlo.'**
+  String get noFavoritesDescription;
+
+  /// No description provided for @favoritesLoadError.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos cargar tus favoritos.'**
+  String get favoritesLoadError;
+
+  /// No description provided for @favoriteExerciseCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 ejercicio} other{{count} ejercicios}}'**
+  String favoriteExerciseCount(int count);
 }
 
 class _AppLocalizationsDelegate

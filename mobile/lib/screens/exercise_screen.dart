@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../controllers/favorites_controller.dart';
+import 'auth/auth_flow_screen.dart';
 import '../l10n/app_localizations.dart';
 import '../models/exercise.dart';
 import '../models/muscle.dart';
@@ -36,9 +39,36 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
     setState(_load);
   }
 
+  Future<void> _handleFavorite(Exercise exercise) async {
+    final favoritesController = context.read<FavoritesController>();
+
+    if (!favoritesController.isAuthenticated) {
+      await Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (context) => const AuthFlowScreen()));
+
+      return;
+    }
+
+    final success = await favoritesController.toggleFavorite(exercise);
+
+    if (!mounted || success) {
+      return;
+    }
+
+    final errorMessage = context.read<FavoritesController>().errorMessage;
+
+    if (errorMessage != null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(errorMessage)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final texts = AppLocalizations.of(context);
+    final favoritesController = context.watch<FavoritesController>();
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.muscle.localizedLabel(texts)),
@@ -78,6 +108,11 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
 
               return ExerciseCard(
                 exercise: exercise,
+                isFavorite: favoritesController.isFavorite(exercise.id),
+                isFavoriteLoading: favoritesController.isUpdating(exercise.id),
+                onFavoritePressed: () {
+                  _handleFavorite(exercise);
+                },
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(

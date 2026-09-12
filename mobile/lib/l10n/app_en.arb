@@ -116,5 +116,19 @@
 "backToLogin": "Sign in",
 "logout": "Sign out",
 "logoutConfirmation": "Do you want to sign out?",
-"cancel": "Cancel"
+"cancel": "Cancel",
+"addFavorite": "Add to favorites",
+"removeFavorite": "Remove from favorites",
+"favoritesTitle": "My favorites",
+"noFavorites": "You don't have any favorites yet",
+"noFavoritesDescription": "Tap an exercise heart to save it.",
+"favoritesLoadError": "We couldn't load your favorites.",
+"favoriteExerciseCount": "{count, plural, =1{1 exercise} other{{count} exercises}}",
+"@favoriteExerciseCount": {
+  "placeholders": {
+    "count": {
+      "type": "int"
+    }
+  }
+}
 }
