@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:ejercicios_app/config/api_config.dart';
+
 import '../models/exercise_detail.dart';
 
 import 'package:http/http.dart' as http;
@@ -8,7 +10,7 @@ import '../models/exercise.dart';
 import '../models/muscle.dart';
 
 class ExerciseService {
-  static const baseUrl = 'http://10.0.2.2:8000';
+  static const baseUrl = ApiConfig.baseUrl;
 
   Future<List<Muscle>> getMuscles() async {
     final uri = Uri.parse('$baseUrl/api/v1/muscles');

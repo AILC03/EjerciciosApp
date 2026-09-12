@@ -5,10 +5,14 @@ import 'package:ejercicios_app/controllers/auth_controller.dart';
 import 'package:ejercicios_app/l10n/app_localizations.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key, required this.onLogin});
+  const RegisterScreen({
+    super.key,
+    required this.onLogin,
+    required this.onAuthenticated,
+  });
 
   final VoidCallback onLogin;
-
+  final VoidCallback onAuthenticated;
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
@@ -39,7 +43,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     final authController = context.read<AuthController>();
 
-    await authController.register(
+    final success = await authController.register(
       email: _emailController.text,
       password: _passwordController.text,
     );
@@ -47,7 +51,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!mounted) {
       return;
     }
-
+    if (success) {
+      widget.onAuthenticated();
+      return;
+    }
     final errorMessage = authController.errorMessage;
 
     if (errorMessage != null) {

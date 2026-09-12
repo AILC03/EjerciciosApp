@@ -25,10 +25,11 @@ class AuthController extends ChangeNotifier {
   bool get isAuthenticated => _user != null;
 
   Future<void> initialize() async {
-    if (_isInitialized) {
+    if (_isInitialized || _isLoading) {
       return;
     }
 
+    _errorMessage = null;
     _setLoading(true);
 
     try {
@@ -37,9 +38,17 @@ class AuthController extends ChangeNotifier {
       if (token != null && token.isNotEmpty) {
         _user = await _authService.getCurrentUser(token);
       }
-    } catch (_) {
-      await _tokenStorage.deleteToken();
+    } on ApiException catch (error) {
       _user = null;
+
+      if (error.statusCode == 401 || error.statusCode == 403) {
+        await _tokenStorage.deleteToken();
+      } else {
+        _errorMessage = 'No fue posible comprobar la sesión.';
+      }
+    } catch (_) {
+      _user = null;
+      _errorMessage = 'No fue posible comprobar la sesión.';
     } finally {
       _isInitialized = true;
       _setLoading(false);

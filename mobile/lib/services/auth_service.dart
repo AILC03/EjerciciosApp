@@ -1,13 +1,13 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-
+import 'package:ejercicios_app/config/api_config.dart';
 import 'package:ejercicios_app/models/auth_token.dart';
 import 'package:ejercicios_app/models/user.dart';
 import 'package:ejercicios_app/services/api_exception.dart';
 
 class AuthService {
-  AuthService({http.Client? client, this.baseUrl = 'http://10.0.2.2:8000'})
+  AuthService({http.Client? client, this.baseUrl = ApiConfig.baseUrl})
     : _client = client ?? http.Client();
 
   final http.Client _client;

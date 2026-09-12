@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'auth/auth_flow_screen.dart';
 import '../controllers/auth_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../l10n/locale_controller.dart';
@@ -41,6 +42,11 @@ class _MuscleSelectionScreenState extends State<MuscleSelectionScreen> {
     );
   }
 
+  Future<void> _openAuthentication() async {
+    await Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => const AuthFlowScreen()));
+  }
+
   Future<void> _logout() async {
     final texts = AppLocalizations.of(context);
 
@@ -78,6 +84,7 @@ class _MuscleSelectionScreenState extends State<MuscleSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     final texts = AppLocalizations.of(context);
+    final authController = context.watch<AuthController>();
 
     return Scaffold(
       appBar: AppBar(
@@ -113,11 +120,18 @@ class _MuscleSelectionScreenState extends State<MuscleSelectionScreen> {
               ];
             },
           ),
-          IconButton(
-            onPressed: _logout,
-            tooltip: texts.logout,
-            icon: const Icon(Icons.logout),
-          ),
+          if (authController.isAuthenticated)
+            IconButton(
+              onPressed: _logout,
+              tooltip: texts.logout,
+              icon: const Icon(Icons.logout),
+            )
+          else
+            IconButton(
+              onPressed: _openAuthentication,
+              tooltip: texts.login,
+              icon: const Icon(Icons.account_circle_outlined),
+            ),
           const SizedBox(width: 8),
         ],
       ),

@@ -5,9 +5,14 @@ import 'package:ejercicios_app/controllers/auth_controller.dart';
 import 'package:ejercicios_app/l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, required this.onRegister});
+  const LoginScreen({
+    super.key,
+    required this.onRegister,
+    required this.onAuthenticated,
+  });
 
   final VoidCallback onRegister;
+  final VoidCallback onAuthenticated;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -36,12 +41,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final authController = context.read<AuthController>();
 
-    await authController.login(
+    final success = await authController.login(
       email: _emailController.text,
       password: _passwordController.text,
     );
 
     if (!mounted) {
+      return;
+    }
+
+    if (success) {
+      widget.onAuthenticated();
       return;
     }
 
