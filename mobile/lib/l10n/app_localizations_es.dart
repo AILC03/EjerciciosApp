@@ -300,4 +300,66 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get systemLanguage => 'Idioma del dispositivo';
+
+  @override
+  String get loginTitle => 'Iniciar sesión';
+
+  @override
+  String get loginSubtitle => 'Accede para guardar tus ejercicios favoritos';
+
+  @override
+  String get email => 'Correo electrónico';
+
+  @override
+  String get password => 'Contraseña';
+
+  @override
+  String get login => 'Entrar';
+
+  @override
+  String get createAccount => 'Crear una cuenta';
+
+  @override
+  String get emailRequired => 'Ingresa tu correo electrónico';
+
+  @override
+  String get emailInvalid => 'Ingresa un correo electrónico válido';
+
+  @override
+  String get passwordRequired => 'Ingresa tu contraseña';
+
+  @override
+  String get passwordTooShort =>
+      'La contraseña debe tener al menos 8 caracteres';
+
+  @override
+  String get registerTitle => 'Crear cuenta';
+
+  @override
+  String get registerSubtitle =>
+      'Crea una cuenta para guardar tus ejercicios favoritos';
+
+  @override
+  String get confirmPassword => 'Confirmar contraseña';
+
+  @override
+  String get confirmPasswordRequired => 'Confirma tu contraseña';
+
+  @override
+  String get passwordsDoNotMatch => 'Las contraseñas no coinciden';
+
+  @override
+  String get alreadyHaveAccount => '¿Ya tienes una cuenta?';
+
+  @override
+  String get backToLogin => 'Iniciar sesión';
+
+  @override
+  String get logout => 'Cerrar sesión';
+
+  @override
+  String get logoutConfirmation => '¿Quieres cerrar tu sesión?';
+
+  @override
+  String get cancel => 'Cancelar';
 }

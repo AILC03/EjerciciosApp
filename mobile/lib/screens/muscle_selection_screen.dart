@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../l10n/locale_controller.dart';
+import '../controllers/auth_controller.dart';
 import '../l10n/app_localizations.dart';
+import '../l10n/locale_controller.dart';
 import '../models/muscle.dart';
 import '../services/exercise_service.dart';
 import '../widgets/loading_skeletons.dart';
 import 'exercise_screen.dart';
 
 class MuscleSelectionScreen extends StatefulWidget {
-  final LocaleController localeController;
-
   const MuscleSelectionScreen({super.key, required this.localeController});
+
+  final LocaleController localeController;
 
   @override
   State<MuscleSelectionScreen> createState() => _MuscleSelectionScreenState();
@@ -39,9 +41,44 @@ class _MuscleSelectionScreenState extends State<MuscleSelectionScreen> {
     );
   }
 
+  Future<void> _logout() async {
+    final texts = AppLocalizations.of(context);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(texts.logout),
+          content: Text(texts.logoutConfirmation),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+              child: Text(texts.cancel),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+              child: Text(texts.logout),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !mounted) {
+      return;
+    }
+
+    await context.read<AuthController>().logout();
+  }
+
   @override
   Widget build(BuildContext context) {
     final texts = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(texts.appName),
@@ -76,6 +113,11 @@ class _MuscleSelectionScreenState extends State<MuscleSelectionScreen> {
               ];
             },
           ),
+          IconButton(
+            onPressed: _logout,
+            tooltip: texts.logout,
+            icon: const Icon(Icons.logout),
+          ),
           const SizedBox(width: 8),
         ],
       ),
@@ -96,7 +138,7 @@ class _MuscleSelectionScreenState extends State<MuscleSelectionScreen> {
             slivers: [
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(20, 20, 20, 8),
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -189,13 +231,14 @@ class _MuscleSelectionScreenState extends State<MuscleSelectionScreen> {
 }
 
 class _ErrorContent extends StatelessWidget {
-  final VoidCallback onRetry;
-
   const _ErrorContent({required this.onRetry});
+
+  final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
     final texts = AppLocalizations.of(context);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),

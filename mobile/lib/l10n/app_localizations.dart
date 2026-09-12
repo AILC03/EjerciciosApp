@@ -679,6 +679,126 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Idioma del dispositivo'**
   String get systemLanguage;
+
+  /// No description provided for @loginTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar sesión'**
+  String get loginTitle;
+
+  /// No description provided for @loginSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Accede para guardar tus ejercicios favoritos'**
+  String get loginSubtitle;
+
+  /// No description provided for @email.
+  ///
+  /// In es, this message translates to:
+  /// **'Correo electrónico'**
+  String get email;
+
+  /// No description provided for @password.
+  ///
+  /// In es, this message translates to:
+  /// **'Contraseña'**
+  String get password;
+
+  /// No description provided for @login.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrar'**
+  String get login;
+
+  /// No description provided for @createAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear una cuenta'**
+  String get createAccount;
+
+  /// No description provided for @emailRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa tu correo electrónico'**
+  String get emailRequired;
+
+  /// No description provided for @emailInvalid.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa un correo electrónico válido'**
+  String get emailInvalid;
+
+  /// No description provided for @passwordRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa tu contraseña'**
+  String get passwordRequired;
+
+  /// No description provided for @passwordTooShort.
+  ///
+  /// In es, this message translates to:
+  /// **'La contraseña debe tener al menos 8 caracteres'**
+  String get passwordTooShort;
+
+  /// No description provided for @registerTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear cuenta'**
+  String get registerTitle;
+
+  /// No description provided for @registerSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Crea una cuenta para guardar tus ejercicios favoritos'**
+  String get registerSubtitle;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar contraseña'**
+  String get confirmPassword;
+
+  /// No description provided for @confirmPasswordRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirma tu contraseña'**
+  String get confirmPasswordRequired;
+
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In es, this message translates to:
+  /// **'Las contraseñas no coinciden'**
+  String get passwordsDoNotMatch;
+
+  /// No description provided for @alreadyHaveAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Ya tienes una cuenta?'**
+  String get alreadyHaveAccount;
+
+  /// No description provided for @backToLogin.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar sesión'**
+  String get backToLogin;
+
+  /// No description provided for @logout.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar sesión'**
+  String get logout;
+
+  /// No description provided for @logoutConfirmation.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Quieres cerrar tu sesión?'**
+  String get logoutConfirmation;
+
+  /// No description provided for @cancel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar'**
+  String get cancel;
 }
 
 class _AppLocalizationsDelegate

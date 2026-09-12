@@ -299,4 +299,65 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get systemLanguage => 'Device language';
+
+  @override
+  String get loginTitle => 'Sign in';
+
+  @override
+  String get loginSubtitle => 'Sign in to save your favorite exercises';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get login => 'Sign in';
+
+  @override
+  String get createAccount => 'Create an account';
+
+  @override
+  String get emailRequired => 'Enter your email';
+
+  @override
+  String get emailInvalid => 'Enter a valid email address';
+
+  @override
+  String get passwordRequired => 'Enter your password';
+
+  @override
+  String get passwordTooShort => 'Password must contain at least 8 characters';
+
+  @override
+  String get registerTitle => 'Create account';
+
+  @override
+  String get registerSubtitle =>
+      'Create an account to save your favorite exercises';
+
+  @override
+  String get confirmPassword => 'Confirm password';
+
+  @override
+  String get confirmPasswordRequired => 'Confirm your password';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match';
+
+  @override
+  String get alreadyHaveAccount => 'Already have an account?';
+
+  @override
+  String get backToLogin => 'Sign in';
+
+  @override
+  String get logout => 'Sign out';
+
+  @override
+  String get logoutConfirmation => 'Do you want to sign out?';
+
+  @override
+  String get cancel => 'Cancel';
 }

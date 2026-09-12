@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     db_name: str = "ejercicios_app"
     db_user: str = "postgres"
     db_password: str
+    jwt_secret_key: str
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
 
     model_config = SettingsConfigDict(
         env_file=BACKEND_DIR / ".env",
