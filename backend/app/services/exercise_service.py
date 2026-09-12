@@ -14,7 +14,7 @@ def _absolute_media_url(path: str) -> str:
     return f"{DATASET_MEDIA_BASE_URL.rstrip('/')}/{path.lstrip('/')}"
 
 
-def _serialize_exercise(exercise, schema):
+def serialize_exercise(exercise, schema):
     data = schema.model_validate(exercise).model_dump()
     data["image"] = _absolute_media_url(data["image"])
     data["gif_url"] = _absolute_media_url(data["gif_url"])
@@ -36,7 +36,7 @@ def list_exercises(
 
     return {
         "items": [
-            _serialize_exercise(exercise, ExerciseSummary)
+            serialize_exercise(exercise, ExerciseSummary)
             for exercise in exercises
         ],
         "total": total,
@@ -56,7 +56,7 @@ def get_exercise_by_id(session: Session, exercise_id: str):
     if exercise is None:
         return None
 
-    return _serialize_exercise(exercise, Exercise)
+    return serialize_exercise(exercise, Exercise)
 
 
 def get_muscles(session: Session) -> list[str]:
